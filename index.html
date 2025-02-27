@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новости</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        #news {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Новости</h1>
+    <div id="news">Загрузка новостей...</div>
+
+    <script>
+        async function fetchNews(query) {
+            try {
+                const url = `https://api.rss2json.com/v1/api.json?rss_url=https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=ru&gl=RU&ceid=RU:ru`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!data.items || data.items.length === 0) {
+                    document.getElementById("news").innerHTML = "Нет новостей.";
+                    return;
+                }
+
+                const newsList = data.items.slice(0, 3)
+                    .map(item => `<p><b>${item.title}</b><br>${item.description || "Без описания"}<br><a href="${item.link}" target="_blank">Читать дальше</a></p>`)
+                    .join("");
+
+                document.getElementById("news").innerHTML = newsList;
+            } catch (error) {
+                document.getElementById("news").innerHTML = "Ошибка загрузки.";
+                console.error(error);
+            }
+        }
+
+        fetchNews("технологии");
+        setInterval(() => fetchNews("технологии"), 1800000);
+    </script>
+</body>
+</html>
